@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { InvoiceService } from "../invoice.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { InvoiceCreateInput } from "./InvoiceCreateInput";
 import { Invoice } from "./Invoice";
 import { InvoiceFindManyArgs } from "./InvoiceFindManyArgs";
 import { InvoiceWhereUniqueInput } from "./InvoiceWhereUniqueInput";
 import { InvoiceUpdateInput } from "./InvoiceUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class InvoiceControllerBase {
-  constructor(protected readonly service: InvoiceService) {}
+  constructor(
+    protected readonly service: InvoiceService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Invoice })
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createInvoice(
     @common.Body() data: InvoiceCreateInput
   ): Promise<Invoice> {
@@ -89,9 +107,18 @@ export class InvoiceControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Invoice] })
   @ApiNestedQuery(InvoiceFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async invoices(@common.Req() request: Request): Promise<Invoice[]> {
     const args = plainToClass(InvoiceFindManyArgs, request.query);
     return this.service.invoices({
@@ -133,9 +160,18 @@ export class InvoiceControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Invoice })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async invoice(
     @common.Param() params: InvoiceWhereUniqueInput
   ): Promise<Invoice | null> {
@@ -184,9 +220,18 @@ export class InvoiceControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Invoice })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateInvoice(
     @common.Param() params: InvoiceWhereUniqueInput,
     @common.Body() data: InvoiceUpdateInput
@@ -263,6 +308,14 @@ export class InvoiceControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Invoice })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteInvoice(
     @common.Param() params: InvoiceWhereUniqueInput
   ): Promise<Invoice | null> {

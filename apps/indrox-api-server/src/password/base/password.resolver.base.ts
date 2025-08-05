@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Password } from "./Password";
 import { PasswordCountArgs } from "./PasswordCountArgs";
 import { PasswordFindManyArgs } from "./PasswordFindManyArgs";
@@ -23,10 +29,20 @@ import { DeletePasswordArgs } from "./DeletePasswordArgs";
 import { Client } from "../../client/base/Client";
 import { Project } from "../../project/base/Project";
 import { PasswordService } from "../password.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Password)
 export class PasswordResolverBase {
-  constructor(protected readonly service: PasswordService) {}
+  constructor(
+    protected readonly service: PasswordService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "any",
+  })
   async _passwordsMeta(
     @graphql.Args() args: PasswordCountArgs
   ): Promise<MetaQueryPayload> {
@@ -36,14 +52,26 @@ export class PasswordResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Password])
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "any",
+  })
   async passwords(
     @graphql.Args() args: PasswordFindManyArgs
   ): Promise<Password[]> {
     return this.service.passwords(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Password, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "own",
+  })
   async password(
     @graphql.Args() args: PasswordFindUniqueArgs
   ): Promise<Password | null> {
@@ -54,7 +82,13 @@ export class PasswordResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Password)
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "create",
+    possession: "any",
+  })
   async createPassword(
     @graphql.Args() args: CreatePasswordArgs
   ): Promise<Password> {
@@ -78,7 +112,13 @@ export class PasswordResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Password)
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "update",
+    possession: "any",
+  })
   async updatePassword(
     @graphql.Args() args: UpdatePasswordArgs
   ): Promise<Password | null> {
@@ -112,6 +152,11 @@ export class PasswordResolverBase {
   }
 
   @graphql.Mutation(() => Password)
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "delete",
+    possession: "any",
+  })
   async deletePassword(
     @graphql.Args() args: DeletePasswordArgs
   ): Promise<Password | null> {
@@ -127,9 +172,15 @@ export class PasswordResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Client, {
     nullable: true,
     name: "client",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
   })
   async getClient(@graphql.Parent() parent: Password): Promise<Client | null> {
     const result = await this.service.getClient(parent.id);
@@ -140,9 +191,15 @@ export class PasswordResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Project, {
     nullable: true,
     name: "project",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Project",
+    action: "read",
+    possession: "any",
   })
   async getProject(
     @graphql.Parent() parent: Password

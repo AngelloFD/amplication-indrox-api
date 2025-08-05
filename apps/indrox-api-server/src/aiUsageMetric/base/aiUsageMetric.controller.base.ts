@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { AiUsageMetricService } from "../aiUsageMetric.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { AiUsageMetricCreateInput } from "./AiUsageMetricCreateInput";
 import { AiUsageMetric } from "./AiUsageMetric";
 import { AiUsageMetricFindManyArgs } from "./AiUsageMetricFindManyArgs";
 import { AiUsageMetricWhereUniqueInput } from "./AiUsageMetricWhereUniqueInput";
 import { AiUsageMetricUpdateInput } from "./AiUsageMetricUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class AiUsageMetricControllerBase {
-  constructor(protected readonly service: AiUsageMetricService) {}
+  constructor(
+    protected readonly service: AiUsageMetricService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: AiUsageMetric })
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createAiUsageMetric(
     @common.Body() data: AiUsageMetricCreateInput
   ): Promise<AiUsageMetric> {
@@ -72,9 +90,18 @@ export class AiUsageMetricControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [AiUsageMetric] })
   @ApiNestedQuery(AiUsageMetricFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async aiUsageMetrics(
     @common.Req() request: Request
   ): Promise<AiUsageMetric[]> {
@@ -107,9 +134,18 @@ export class AiUsageMetricControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: AiUsageMetric })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async aiUsageMetric(
     @common.Param() params: AiUsageMetricWhereUniqueInput
   ): Promise<AiUsageMetric | null> {
@@ -147,9 +183,18 @@ export class AiUsageMetricControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: AiUsageMetric })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateAiUsageMetric(
     @common.Param() params: AiUsageMetricWhereUniqueInput,
     @common.Body() data: AiUsageMetricUpdateInput
@@ -209,6 +254,14 @@ export class AiUsageMetricControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: AiUsageMetric })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteAiUsageMetric(
     @common.Param() params: AiUsageMetricWhereUniqueInput
   ): Promise<AiUsageMetric | null> {

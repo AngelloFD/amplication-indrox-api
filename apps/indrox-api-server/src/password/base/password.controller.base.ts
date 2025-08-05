@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { PasswordService } from "../password.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { PasswordCreateInput } from "./PasswordCreateInput";
 import { Password } from "./Password";
 import { PasswordFindManyArgs } from "./PasswordFindManyArgs";
 import { PasswordWhereUniqueInput } from "./PasswordWhereUniqueInput";
 import { PasswordUpdateInput } from "./PasswordUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class PasswordControllerBase {
-  constructor(protected readonly service: PasswordService) {}
+  constructor(
+    protected readonly service: PasswordService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Password })
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createPassword(
     @common.Body() data: PasswordCreateInput
   ): Promise<Password> {
@@ -72,9 +90,18 @@ export class PasswordControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Password] })
   @ApiNestedQuery(PasswordFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async passwords(@common.Req() request: Request): Promise<Password[]> {
     const args = plainToClass(PasswordFindManyArgs, request.query);
     return this.service.passwords({
@@ -105,9 +132,18 @@ export class PasswordControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Password })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async password(
     @common.Param() params: PasswordWhereUniqueInput
   ): Promise<Password | null> {
@@ -145,9 +181,18 @@ export class PasswordControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Password })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updatePassword(
     @common.Param() params: PasswordWhereUniqueInput,
     @common.Body() data: PasswordUpdateInput
@@ -207,6 +252,14 @@ export class PasswordControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Password })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deletePassword(
     @common.Param() params: PasswordWhereUniqueInput
   ): Promise<Password | null> {

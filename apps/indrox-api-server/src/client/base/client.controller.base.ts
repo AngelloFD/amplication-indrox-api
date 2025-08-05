@@ -16,7 +16,11 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { ClientService } from "../client.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { ClientCreateInput } from "./ClientCreateInput";
 import { Client } from "./Client";
 import { ClientFindManyArgs } from "./ClientFindManyArgs";
@@ -38,10 +42,24 @@ import { ProjectFindManyArgs } from "../../project/base/ProjectFindManyArgs";
 import { Project } from "../../project/base/Project";
 import { ProjectWhereUniqueInput } from "../../project/base/ProjectWhereUniqueInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class ClientControllerBase {
-  constructor(protected readonly service: ClientService) {}
+  constructor(
+    protected readonly service: ClientService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Client })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createClient(@common.Body() data: ClientCreateInput): Promise<Client> {
     return await this.service.createClient({
       data: {
@@ -76,9 +94,18 @@ export class ClientControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Client] })
   @ApiNestedQuery(ClientFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async clients(@common.Req() request: Request): Promise<Client[]> {
     const args = plainToClass(ClientFindManyArgs, request.query);
     return this.service.clients({
@@ -106,9 +133,18 @@ export class ClientControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Client })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async client(
     @common.Param() params: ClientWhereUniqueInput
   ): Promise<Client | null> {
@@ -143,9 +179,18 @@ export class ClientControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Client })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateClient(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() data: ClientUpdateInput
@@ -196,6 +241,14 @@ export class ClientControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Client })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteClient(
     @common.Param() params: ClientWhereUniqueInput
   ): Promise<Client | null> {
@@ -233,8 +286,14 @@ export class ClientControllerBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/aiUsageMetrics")
   @ApiNestedQuery(AiUsageMetricFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "any",
+  })
   async findAiUsageMetrics(
     @common.Req() request: Request,
     @common.Param() params: ClientWhereUniqueInput
@@ -275,6 +334,11 @@ export class ClientControllerBase {
   }
 
   @common.Post("/:id/aiUsageMetrics")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async connectAiUsageMetrics(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: AiUsageMetricWhereUniqueInput[]
@@ -292,6 +356,11 @@ export class ClientControllerBase {
   }
 
   @common.Patch("/:id/aiUsageMetrics")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async updateAiUsageMetrics(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: AiUsageMetricWhereUniqueInput[]
@@ -309,6 +378,11 @@ export class ClientControllerBase {
   }
 
   @common.Delete("/:id/aiUsageMetrics")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async disconnectAiUsageMetrics(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: AiUsageMetricWhereUniqueInput[]
@@ -325,8 +399,14 @@ export class ClientControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/invoices")
   @ApiNestedQuery(InvoiceFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "any",
+  })
   async findInvoices(
     @common.Req() request: Request,
     @common.Param() params: ClientWhereUniqueInput
@@ -378,6 +458,11 @@ export class ClientControllerBase {
   }
 
   @common.Post("/:id/invoices")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async connectInvoices(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: InvoiceWhereUniqueInput[]
@@ -395,6 +480,11 @@ export class ClientControllerBase {
   }
 
   @common.Patch("/:id/invoices")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async updateInvoices(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: InvoiceWhereUniqueInput[]
@@ -412,6 +502,11 @@ export class ClientControllerBase {
   }
 
   @common.Delete("/:id/invoices")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async disconnectInvoices(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: InvoiceWhereUniqueInput[]
@@ -428,8 +523,14 @@ export class ClientControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/leads")
   @ApiNestedQuery(LeadFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "any",
+  })
   async findLeads(
     @common.Req() request: Request,
     @common.Param() params: ClientWhereUniqueInput
@@ -469,6 +570,11 @@ export class ClientControllerBase {
   }
 
   @common.Post("/:id/leads")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async connectLeads(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: LeadWhereUniqueInput[]
@@ -486,6 +592,11 @@ export class ClientControllerBase {
   }
 
   @common.Patch("/:id/leads")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async updateLeads(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: LeadWhereUniqueInput[]
@@ -503,6 +614,11 @@ export class ClientControllerBase {
   }
 
   @common.Delete("/:id/leads")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async disconnectLeads(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: LeadWhereUniqueInput[]
@@ -519,8 +635,14 @@ export class ClientControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/passwords")
   @ApiNestedQuery(PasswordFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "any",
+  })
   async findPasswords(
     @common.Req() request: Request,
     @common.Param() params: ClientWhereUniqueInput
@@ -561,6 +683,11 @@ export class ClientControllerBase {
   }
 
   @common.Post("/:id/passwords")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async connectPasswords(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: PasswordWhereUniqueInput[]
@@ -578,6 +705,11 @@ export class ClientControllerBase {
   }
 
   @common.Patch("/:id/passwords")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async updatePasswords(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: PasswordWhereUniqueInput[]
@@ -595,6 +727,11 @@ export class ClientControllerBase {
   }
 
   @common.Delete("/:id/passwords")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async disconnectPasswords(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: PasswordWhereUniqueInput[]
@@ -611,8 +748,14 @@ export class ClientControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/projects")
   @ApiNestedQuery(ProjectFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Project",
+    action: "read",
+    possession: "any",
+  })
   async findProjects(
     @common.Req() request: Request,
     @common.Param() params: ClientWhereUniqueInput
@@ -656,6 +799,11 @@ export class ClientControllerBase {
   }
 
   @common.Post("/:id/projects")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async connectProjects(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: ProjectWhereUniqueInput[]
@@ -673,6 +821,11 @@ export class ClientControllerBase {
   }
 
   @common.Patch("/:id/projects")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async updateProjects(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: ProjectWhereUniqueInput[]
@@ -690,6 +843,11 @@ export class ClientControllerBase {
   }
 
   @common.Delete("/:id/projects")
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async disconnectProjects(
     @common.Param() params: ClientWhereUniqueInput,
     @common.Body() body: ProjectWhereUniqueInput[]

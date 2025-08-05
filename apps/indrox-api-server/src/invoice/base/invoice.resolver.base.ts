@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Invoice } from "./Invoice";
 import { InvoiceCountArgs } from "./InvoiceCountArgs";
 import { InvoiceFindManyArgs } from "./InvoiceFindManyArgs";
@@ -24,10 +30,20 @@ import { Client } from "../../client/base/Client";
 import { Project } from "../../project/base/Project";
 import { Service } from "../../service/base/Service";
 import { InvoiceService } from "../invoice.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Invoice)
 export class InvoiceResolverBase {
-  constructor(protected readonly service: InvoiceService) {}
+  constructor(
+    protected readonly service: InvoiceService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "any",
+  })
   async _invoicesMeta(
     @graphql.Args() args: InvoiceCountArgs
   ): Promise<MetaQueryPayload> {
@@ -37,14 +53,26 @@ export class InvoiceResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Invoice])
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "any",
+  })
   async invoices(
     @graphql.Args() args: InvoiceFindManyArgs
   ): Promise<Invoice[]> {
     return this.service.invoices(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Invoice, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "own",
+  })
   async invoice(
     @graphql.Args() args: InvoiceFindUniqueArgs
   ): Promise<Invoice | null> {
@@ -55,7 +83,13 @@ export class InvoiceResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Invoice)
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "create",
+    possession: "any",
+  })
   async createInvoice(
     @graphql.Args() args: CreateInvoiceArgs
   ): Promise<Invoice> {
@@ -85,7 +119,13 @@ export class InvoiceResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Invoice)
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "update",
+    possession: "any",
+  })
   async updateInvoice(
     @graphql.Args() args: UpdateInvoiceArgs
   ): Promise<Invoice | null> {
@@ -125,6 +165,11 @@ export class InvoiceResolverBase {
   }
 
   @graphql.Mutation(() => Invoice)
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "delete",
+    possession: "any",
+  })
   async deleteInvoice(
     @graphql.Args() args: DeleteInvoiceArgs
   ): Promise<Invoice | null> {
@@ -140,9 +185,15 @@ export class InvoiceResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Client, {
     nullable: true,
     name: "client",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
   })
   async getClient(@graphql.Parent() parent: Invoice): Promise<Client | null> {
     const result = await this.service.getClient(parent.id);
@@ -153,9 +204,15 @@ export class InvoiceResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Project, {
     nullable: true,
     name: "project",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Project",
+    action: "read",
+    possession: "any",
   })
   async getProject(@graphql.Parent() parent: Invoice): Promise<Project | null> {
     const result = await this.service.getProject(parent.id);
@@ -166,9 +223,15 @@ export class InvoiceResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Service, {
     nullable: true,
     name: "service",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Service",
+    action: "read",
+    possession: "any",
   })
   async getService(@graphql.Parent() parent: Invoice): Promise<Service | null> {
     const result = await this.service.getService(parent.id);

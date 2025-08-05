@@ -6,6 +6,7 @@ import { ProjectModule } from "./project/project.module";
 import { AiUsageMetricModule } from "./aiUsageMetric/aiUsageMetric.module";
 import { PasswordModule } from "./password/password.module";
 import { InvoiceModule } from "./invoice/invoice.module";
+import { UserModule } from "./user/user.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
@@ -15,9 +16,14 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 
+import { ACLModule } from "./auth/acl.module";
+import { AuthModule } from "./auth/auth.module";
+
 @Module({
   controllers: [],
   imports: [
+    ACLModule,
+    AuthModule,
     ClientModule,
     ServiceModule,
     LeadModule,
@@ -25,6 +31,7 @@ import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
     AiUsageMetricModule,
     PasswordModule,
     InvoiceModule,
+    UserModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,

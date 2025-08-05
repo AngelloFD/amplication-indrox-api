@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Lead } from "./Lead";
 import { LeadCountArgs } from "./LeadCountArgs";
 import { LeadFindManyArgs } from "./LeadFindManyArgs";
@@ -22,10 +28,20 @@ import { UpdateLeadArgs } from "./UpdateLeadArgs";
 import { DeleteLeadArgs } from "./DeleteLeadArgs";
 import { Client } from "../../client/base/Client";
 import { LeadService } from "../lead.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Lead)
 export class LeadResolverBase {
-  constructor(protected readonly service: LeadService) {}
+  constructor(
+    protected readonly service: LeadService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "any",
+  })
   async _leadsMeta(
     @graphql.Args() args: LeadCountArgs
   ): Promise<MetaQueryPayload> {
@@ -35,12 +51,24 @@ export class LeadResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Lead])
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "any",
+  })
   async leads(@graphql.Args() args: LeadFindManyArgs): Promise<Lead[]> {
     return this.service.leads(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Lead, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "own",
+  })
   async lead(@graphql.Args() args: LeadFindUniqueArgs): Promise<Lead | null> {
     const result = await this.service.lead(args);
     if (result === null) {
@@ -49,7 +77,13 @@ export class LeadResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Lead)
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "create",
+    possession: "any",
+  })
   async createLead(@graphql.Args() args: CreateLeadArgs): Promise<Lead> {
     return await this.service.createLead({
       ...args,
@@ -65,7 +99,13 @@ export class LeadResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Lead)
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "update",
+    possession: "any",
+  })
   async updateLead(@graphql.Args() args: UpdateLeadArgs): Promise<Lead | null> {
     try {
       return await this.service.updateLead({
@@ -91,6 +131,11 @@ export class LeadResolverBase {
   }
 
   @graphql.Mutation(() => Lead)
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "delete",
+    possession: "any",
+  })
   async deleteLead(@graphql.Args() args: DeleteLeadArgs): Promise<Lead | null> {
     try {
       return await this.service.deleteLead(args);
@@ -104,9 +149,15 @@ export class LeadResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Client, {
     nullable: true,
     name: "client",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
   })
   async getClient(@graphql.Parent() parent: Lead): Promise<Client | null> {
     const result = await this.service.getClient(parent.id);

@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { AiUsageMetric } from "./AiUsageMetric";
 import { AiUsageMetricCountArgs } from "./AiUsageMetricCountArgs";
 import { AiUsageMetricFindManyArgs } from "./AiUsageMetricFindManyArgs";
@@ -23,10 +29,20 @@ import { DeleteAiUsageMetricArgs } from "./DeleteAiUsageMetricArgs";
 import { Client } from "../../client/base/Client";
 import { Service } from "../../service/base/Service";
 import { AiUsageMetricService } from "../aiUsageMetric.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => AiUsageMetric)
 export class AiUsageMetricResolverBase {
-  constructor(protected readonly service: AiUsageMetricService) {}
+  constructor(
+    protected readonly service: AiUsageMetricService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "any",
+  })
   async _aiUsageMetricsMeta(
     @graphql.Args() args: AiUsageMetricCountArgs
   ): Promise<MetaQueryPayload> {
@@ -36,14 +52,26 @@ export class AiUsageMetricResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [AiUsageMetric])
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "any",
+  })
   async aiUsageMetrics(
     @graphql.Args() args: AiUsageMetricFindManyArgs
   ): Promise<AiUsageMetric[]> {
     return this.service.aiUsageMetrics(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => AiUsageMetric, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "own",
+  })
   async aiUsageMetric(
     @graphql.Args() args: AiUsageMetricFindUniqueArgs
   ): Promise<AiUsageMetric | null> {
@@ -54,7 +82,13 @@ export class AiUsageMetricResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => AiUsageMetric)
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "create",
+    possession: "any",
+  })
   async createAiUsageMetric(
     @graphql.Args() args: CreateAiUsageMetricArgs
   ): Promise<AiUsageMetric> {
@@ -78,7 +112,13 @@ export class AiUsageMetricResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => AiUsageMetric)
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "update",
+    possession: "any",
+  })
   async updateAiUsageMetric(
     @graphql.Args() args: UpdateAiUsageMetricArgs
   ): Promise<AiUsageMetric | null> {
@@ -112,6 +152,11 @@ export class AiUsageMetricResolverBase {
   }
 
   @graphql.Mutation(() => AiUsageMetric)
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "delete",
+    possession: "any",
+  })
   async deleteAiUsageMetric(
     @graphql.Args() args: DeleteAiUsageMetricArgs
   ): Promise<AiUsageMetric | null> {
@@ -127,9 +172,15 @@ export class AiUsageMetricResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Client, {
     nullable: true,
     name: "client",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
   })
   async getClient(
     @graphql.Parent() parent: AiUsageMetric
@@ -142,9 +193,15 @@ export class AiUsageMetricResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Service, {
     nullable: true,
     name: "service",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Service",
+    action: "read",
+    possession: "any",
   })
   async getService(
     @graphql.Parent() parent: AiUsageMetric

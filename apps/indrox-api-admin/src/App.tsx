@@ -33,6 +33,10 @@ import { InvoiceList } from "./invoice/InvoiceList";
 import { InvoiceCreate } from "./invoice/InvoiceCreate";
 import { InvoiceEdit } from "./invoice/InvoiceEdit";
 import { InvoiceShow } from "./invoice/InvoiceShow";
+import { UserList } from "./user/UserList";
+import { UserCreate } from "./user/UserCreate";
+import { UserEdit } from "./user/UserEdit";
+import { UserShow } from "./user/UserShow";
 import { jwtAuthProvider } from "./auth-provider/ra-auth-jwt";
 
 const App = (): React.ReactElement => {
@@ -94,6 +98,13 @@ const App = (): React.ReactElement => {
           edit={InvoiceEdit}
           create={InvoiceCreate}
           show={InvoiceShow}
+        />
+        <Resource
+          name="User"
+          list={UserList}
+          edit={UserEdit}
+          create={UserCreate}
+          show={UserShow}
         />
       </Admin>
     </div>

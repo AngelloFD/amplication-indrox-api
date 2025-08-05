@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Client } from "./Client";
 import { ClientCountArgs } from "./ClientCountArgs";
 import { ClientFindManyArgs } from "./ClientFindManyArgs";
@@ -32,10 +38,20 @@ import { ProjectFindManyArgs } from "../../project/base/ProjectFindManyArgs";
 import { Project } from "../../project/base/Project";
 import { Service } from "../../service/base/Service";
 import { ClientService } from "../client.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Client)
 export class ClientResolverBase {
-  constructor(protected readonly service: ClientService) {}
+  constructor(
+    protected readonly service: ClientService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
+  })
   async _clientsMeta(
     @graphql.Args() args: ClientCountArgs
   ): Promise<MetaQueryPayload> {
@@ -45,12 +61,24 @@ export class ClientResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Client])
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "any",
+  })
   async clients(@graphql.Args() args: ClientFindManyArgs): Promise<Client[]> {
     return this.service.clients(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Client, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "read",
+    possession: "own",
+  })
   async client(
     @graphql.Args() args: ClientFindUniqueArgs
   ): Promise<Client | null> {
@@ -61,7 +89,13 @@ export class ClientResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Client)
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "create",
+    possession: "any",
+  })
   async createClient(@graphql.Args() args: CreateClientArgs): Promise<Client> {
     return await this.service.createClient({
       ...args,
@@ -77,7 +111,13 @@ export class ClientResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Client)
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "update",
+    possession: "any",
+  })
   async updateClient(
     @graphql.Args() args: UpdateClientArgs
   ): Promise<Client | null> {
@@ -105,6 +145,11 @@ export class ClientResolverBase {
   }
 
   @graphql.Mutation(() => Client)
+  @nestAccessControl.UseRoles({
+    resource: "Client",
+    action: "delete",
+    possession: "any",
+  })
   async deleteClient(
     @graphql.Args() args: DeleteClientArgs
   ): Promise<Client | null> {
@@ -120,7 +165,13 @@ export class ClientResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [AiUsageMetric], { name: "aiUsageMetrics" })
+  @nestAccessControl.UseRoles({
+    resource: "AiUsageMetric",
+    action: "read",
+    possession: "any",
+  })
   async findAiUsageMetrics(
     @graphql.Parent() parent: Client,
     @graphql.Args() args: AiUsageMetricFindManyArgs
@@ -134,7 +185,13 @@ export class ClientResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Invoice], { name: "invoices" })
+  @nestAccessControl.UseRoles({
+    resource: "Invoice",
+    action: "read",
+    possession: "any",
+  })
   async findInvoices(
     @graphql.Parent() parent: Client,
     @graphql.Args() args: InvoiceFindManyArgs
@@ -148,7 +205,13 @@ export class ClientResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Lead], { name: "leads" })
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "any",
+  })
   async findLeads(
     @graphql.Parent() parent: Client,
     @graphql.Args() args: LeadFindManyArgs
@@ -162,7 +225,13 @@ export class ClientResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Password], { name: "passwords" })
+  @nestAccessControl.UseRoles({
+    resource: "Password",
+    action: "read",
+    possession: "any",
+  })
   async findPasswords(
     @graphql.Parent() parent: Client,
     @graphql.Args() args: PasswordFindManyArgs
@@ -176,7 +245,13 @@ export class ClientResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Project], { name: "projects" })
+  @nestAccessControl.UseRoles({
+    resource: "Project",
+    action: "read",
+    possession: "any",
+  })
   async findProjects(
     @graphql.Parent() parent: Client,
     @graphql.Args() args: ProjectFindManyArgs
@@ -190,9 +265,15 @@ export class ClientResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Service, {
     nullable: true,
     name: "service",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Service",
+    action: "read",
+    possession: "any",
   })
   async getService(@graphql.Parent() parent: Client): Promise<Service | null> {
     const result = await this.service.getService(parent.id);

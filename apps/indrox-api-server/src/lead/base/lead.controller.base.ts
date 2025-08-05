@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { LeadService } from "../lead.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { LeadCreateInput } from "./LeadCreateInput";
 import { Lead } from "./Lead";
 import { LeadFindManyArgs } from "./LeadFindManyArgs";
 import { LeadWhereUniqueInput } from "./LeadWhereUniqueInput";
 import { LeadUpdateInput } from "./LeadUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class LeadControllerBase {
-  constructor(protected readonly service: LeadService) {}
+  constructor(
+    protected readonly service: LeadService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Lead })
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createLead(@common.Body() data: LeadCreateInput): Promise<Lead> {
     return await this.service.createLead({
       data: {
@@ -63,9 +81,18 @@ export class LeadControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Lead] })
   @ApiNestedQuery(LeadFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async leads(@common.Req() request: Request): Promise<Lead[]> {
     const args = plainToClass(LeadFindManyArgs, request.query);
     return this.service.leads({
@@ -95,9 +122,18 @@ export class LeadControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Lead })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async lead(
     @common.Param() params: LeadWhereUniqueInput
   ): Promise<Lead | null> {
@@ -134,9 +170,18 @@ export class LeadControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Lead })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateLead(
     @common.Param() params: LeadWhereUniqueInput,
     @common.Body() data: LeadUpdateInput
@@ -189,6 +234,14 @@ export class LeadControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Lead })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Lead",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteLead(
     @common.Param() params: LeadWhereUniqueInput
   ): Promise<Lead | null> {

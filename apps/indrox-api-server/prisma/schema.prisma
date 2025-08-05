@@ -132,6 +132,18 @@ model Invoice {
   updatedAt      DateTime                  @updatedAt
 }
 
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
 enum EnumClientClientStatus {
   Option1
 }
