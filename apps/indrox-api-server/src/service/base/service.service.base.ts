@@ -13,7 +13,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 
 import {
   Prisma,
-  Service as PrismaService,
+  Service,
   AiUsageMetric as PrismaAiUsageMetric,
   Client as PrismaClient,
   Invoice as PrismaInvoice,
@@ -27,21 +27,21 @@ export class ServiceServiceBase {
     return this.prisma.service.count(args);
   }
 
-  async services(args: Prisma.ServiceFindManyArgs): Promise<PrismaService[]> {
+  async services(args: Prisma.ServiceFindManyArgs): Promise<Service[]> {
     return this.prisma.service.findMany(args);
   }
   async service(
     args: Prisma.ServiceFindUniqueArgs
-  ): Promise<PrismaService | null> {
+  ): Promise<Service | null> {
     return this.prisma.service.findUnique(args);
   }
-  async createService(args: Prisma.ServiceCreateArgs): Promise<PrismaService> {
+  async createService(args: Prisma.ServiceCreateArgs): Promise<Service> {
     return this.prisma.service.create(args);
   }
-  async updateService(args: Prisma.ServiceUpdateArgs): Promise<PrismaService> {
+  async updateService(args: Prisma.ServiceUpdateArgs): Promise<Service> {
     return this.prisma.service.update(args);
   }
-  async deleteService(args: Prisma.ServiceDeleteArgs): Promise<PrismaService> {
+  async deleteService(args: Prisma.ServiceDeleteArgs): Promise<Service> {
     return this.prisma.service.delete(args);
   }
 

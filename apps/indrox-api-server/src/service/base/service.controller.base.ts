@@ -82,7 +82,7 @@ export class ServiceControllerBase {
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Service })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  async service(
+  async getService(
     @common.Param() params: ServiceWhereUniqueInput
   ): Promise<Service | null> {
     const result = await this.service.service({

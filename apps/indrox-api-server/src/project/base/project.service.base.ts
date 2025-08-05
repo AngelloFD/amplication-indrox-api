@@ -17,7 +17,7 @@ import {
   Invoice as PrismaInvoice,
   Password as PrismaPassword,
   Client as PrismaClient,
-  Service as PrismaService,
+  Service,
 } from "@prisma/client";
 
 export class ProjectServiceBase {
@@ -75,7 +75,7 @@ export class ProjectServiceBase {
       .client();
   }
 
-  async getService(parentId: string): Promise<PrismaService | null> {
+  async getService(parentId: string): Promise<Service | null> {
     return this.prisma.project
       .findUnique({
         where: { id: parentId },

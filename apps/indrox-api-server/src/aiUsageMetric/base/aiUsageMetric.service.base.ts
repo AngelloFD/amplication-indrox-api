@@ -15,7 +15,7 @@ import {
   Prisma,
   AiUsageMetric as PrismaAiUsageMetric,
   Client as PrismaClient,
-  Service as PrismaService,
+  Service,
 } from "@prisma/client";
 
 export class AiUsageMetricServiceBase {
@@ -61,7 +61,7 @@ export class AiUsageMetricServiceBase {
       .client();
   }
 
-  async getService(parentId: string): Promise<PrismaService | null> {
+  async getService(parentId: string): Promise<Service | null> {
     return this.prisma.aiUsageMetric
       .findUnique({
         where: { id: parentId },

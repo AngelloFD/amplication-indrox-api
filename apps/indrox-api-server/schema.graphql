@@ -1,0 +1,842 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AiUsageMetric {
+  client: Client
+  cost: Float
+  createdAt: DateTime!
+  id: String!
+  messageCount: Float
+  service: Service
+  serviceType: String
+  tokenConsumption: Float
+  updatedAt: DateTime!
+  usageDate: DateTime
+}
+
+input AiUsageMetricCreateInput {
+  client: ClientWhereUniqueInput
+  cost: Float
+  messageCount: Float
+  service: ServiceWhereUniqueInput
+  serviceType: String
+  tokenConsumption: Float
+  usageDate: DateTime
+}
+
+input AiUsageMetricCreateNestedManyWithoutClientsInput {
+  connect: [AiUsageMetricWhereUniqueInput!]
+}
+
+input AiUsageMetricCreateNestedManyWithoutServicesInput {
+  connect: [AiUsageMetricWhereUniqueInput!]
+}
+
+input AiUsageMetricListRelationFilter {
+  every: AiUsageMetricWhereInput
+  none: AiUsageMetricWhereInput
+  some: AiUsageMetricWhereInput
+}
+
+input AiUsageMetricOrderByInput {
+  clientId: SortOrder
+  cost: SortOrder
+  createdAt: SortOrder
+  id: SortOrder
+  messageCount: SortOrder
+  serviceId: SortOrder
+  serviceType: SortOrder
+  tokenConsumption: SortOrder
+  updatedAt: SortOrder
+  usageDate: SortOrder
+}
+
+input AiUsageMetricUpdateInput {
+  client: ClientWhereUniqueInput
+  cost: Float
+  messageCount: Float
+  service: ServiceWhereUniqueInput
+  serviceType: String
+  tokenConsumption: Float
+  usageDate: DateTime
+}
+
+input AiUsageMetricUpdateManyWithoutClientsInput {
+  connect: [AiUsageMetricWhereUniqueInput!]
+  disconnect: [AiUsageMetricWhereUniqueInput!]
+  set: [AiUsageMetricWhereUniqueInput!]
+}
+
+input AiUsageMetricUpdateManyWithoutServicesInput {
+  connect: [AiUsageMetricWhereUniqueInput!]
+  disconnect: [AiUsageMetricWhereUniqueInput!]
+  set: [AiUsageMetricWhereUniqueInput!]
+}
+
+input AiUsageMetricWhereInput {
+  client: ClientWhereUniqueInput
+  cost: FloatNullableFilter
+  id: StringFilter
+  messageCount: IntNullableFilter
+  service: ServiceWhereUniqueInput
+  serviceType: StringNullableFilter
+  tokenConsumption: IntNullableFilter
+  usageDate: DateTimeNullableFilter
+}
+
+input AiUsageMetricWhereUniqueInput {
+  id: String!
+}
+
+type Client {
+  aiUsageMetrics(orderBy: [AiUsageMetricOrderByInput!], skip: Float, take: Float, where: AiUsageMetricWhereInput): [AiUsageMetric!]!
+  billingInfo: JSON
+  clientStatus: EnumClientClientStatus
+  company: String
+  createdAt: DateTime!
+  email: String
+  fullName: String
+  id: String!
+  invoices(orderBy: [InvoiceOrderByInput!], skip: Float, take: Float, where: InvoiceWhereInput): [Invoice!]!
+  leads(orderBy: [LeadOrderByInput!], skip: Float, take: Float, where: LeadWhereInput): [Lead!]!
+  passwords(orderBy: [PasswordOrderByInput!], skip: Float, take: Float, where: PasswordWhereInput): [Password!]!
+  paymentMethods: JSON
+  phone: String
+  portalCredentials: JSON
+  projects(orderBy: [ProjectOrderByInput!], skip: Float, take: Float, where: ProjectWhereInput): [Project!]!
+  service: Service
+  updatedAt: DateTime!
+}
+
+input ClientCreateInput {
+  aiUsageMetrics: AiUsageMetricCreateNestedManyWithoutClientsInput
+  billingInfo: JSON
+  clientStatus: EnumClientClientStatus
+  company: String
+  email: String
+  fullName: String
+  invoices: InvoiceCreateNestedManyWithoutClientsInput
+  leads: LeadCreateNestedManyWithoutClientsInput
+  passwords: PasswordCreateNestedManyWithoutClientsInput
+  paymentMethods: JSON
+  phone: String
+  portalCredentials: JSON
+  projects: ProjectCreateNestedManyWithoutClientsInput
+  service: ServiceWhereUniqueInput
+}
+
+input ClientCreateNestedManyWithoutServicesInput {
+  connect: [ClientWhereUniqueInput!]
+}
+
+input ClientListRelationFilter {
+  every: ClientWhereInput
+  none: ClientWhereInput
+  some: ClientWhereInput
+}
+
+input ClientOrderByInput {
+  billingInfo: SortOrder
+  clientStatus: SortOrder
+  company: SortOrder
+  createdAt: SortOrder
+  email: SortOrder
+  fullName: SortOrder
+  id: SortOrder
+  paymentMethods: SortOrder
+  phone: SortOrder
+  portalCredentials: SortOrder
+  serviceId: SortOrder
+  updatedAt: SortOrder
+}
+
+input ClientUpdateInput {
+  aiUsageMetrics: AiUsageMetricUpdateManyWithoutClientsInput
+  billingInfo: JSON
+  clientStatus: EnumClientClientStatus
+  company: String
+  email: String
+  fullName: String
+  invoices: InvoiceUpdateManyWithoutClientsInput
+  leads: LeadUpdateManyWithoutClientsInput
+  passwords: PasswordUpdateManyWithoutClientsInput
+  paymentMethods: JSON
+  phone: String
+  portalCredentials: JSON
+  projects: ProjectUpdateManyWithoutClientsInput
+  service: ServiceWhereUniqueInput
+}
+
+input ClientUpdateManyWithoutServicesInput {
+  connect: [ClientWhereUniqueInput!]
+  disconnect: [ClientWhereUniqueInput!]
+  set: [ClientWhereUniqueInput!]
+}
+
+input ClientWhereInput {
+  aiUsageMetrics: AiUsageMetricListRelationFilter
+  billingInfo: JsonFilter
+  clientStatus: EnumClientClientStatus
+  company: StringNullableFilter
+  email: StringNullableFilter
+  fullName: StringNullableFilter
+  id: StringFilter
+  invoices: InvoiceListRelationFilter
+  leads: LeadListRelationFilter
+  passwords: PasswordListRelationFilter
+  paymentMethods: JsonFilter
+  phone: StringNullableFilter
+  portalCredentials: JsonFilter
+  projects: ProjectListRelationFilter
+  service: ServiceWhereUniqueInput
+}
+
+input ClientWhereUniqueInput {
+  id: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DateTimeNullableFilter {
+  equals: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  not: DateTime
+  notIn: [DateTime!]
+}
+
+enum EnumClientClientStatus {
+  Option_1
+}
+
+enum EnumInvoiceInvoiceType {
+  Option_1
+}
+
+enum EnumInvoicePaymentStatus {
+  Option_1
+}
+
+enum EnumLeadLeadStatus {
+  Option_1
+}
+
+enum EnumLeadLeadType {
+  Option_1
+}
+
+enum EnumProjectStatus {
+  Option_1
+}
+
+enum EnumServiceCategory {
+  Option_1
+}
+
+input FloatNullableFilter {
+  equals: Float
+  gt: Float
+  gte: Float
+  in: [Float!]
+  lt: Float
+  lte: Float
+  not: Float
+  notIn: [Float!]
+}
+
+input IntNullableFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: Int
+  notIn: [Int!]
+}
+
+type Invoice {
+  amount: Float
+  attachments: JSON
+  client: Client
+  createdAt: DateTime!
+  dueDate: DateTime
+  generatedAt: DateTime
+  id: String!
+  invoiceType: EnumInvoiceInvoiceType
+  paymentHistory: JSON
+  paymentStatus: EnumInvoicePaymentStatus
+  paymentTerms: String
+  project: Project
+  service: Service
+  tax: Float
+  updatedAt: DateTime!
+}
+
+input InvoiceCreateInput {
+  amount: Float
+  attachments: JSON
+  client: ClientWhereUniqueInput
+  dueDate: DateTime
+  generatedAt: DateTime
+  invoiceType: EnumInvoiceInvoiceType
+  paymentHistory: JSON
+  paymentStatus: EnumInvoicePaymentStatus
+  paymentTerms: String
+  project: ProjectWhereUniqueInput
+  service: ServiceWhereUniqueInput
+  tax: Float
+}
+
+input InvoiceCreateNestedManyWithoutClientsInput {
+  connect: [InvoiceWhereUniqueInput!]
+}
+
+input InvoiceCreateNestedManyWithoutProjectsInput {
+  connect: [InvoiceWhereUniqueInput!]
+}
+
+input InvoiceCreateNestedManyWithoutServicesInput {
+  connect: [InvoiceWhereUniqueInput!]
+}
+
+input InvoiceListRelationFilter {
+  every: InvoiceWhereInput
+  none: InvoiceWhereInput
+  some: InvoiceWhereInput
+}
+
+input InvoiceOrderByInput {
+  amount: SortOrder
+  attachments: SortOrder
+  clientId: SortOrder
+  createdAt: SortOrder
+  dueDate: SortOrder
+  generatedAt: SortOrder
+  id: SortOrder
+  invoiceType: SortOrder
+  paymentHistory: SortOrder
+  paymentStatus: SortOrder
+  paymentTerms: SortOrder
+  projectId: SortOrder
+  serviceId: SortOrder
+  tax: SortOrder
+  updatedAt: SortOrder
+}
+
+input InvoiceUpdateInput {
+  amount: Float
+  attachments: JSON
+  client: ClientWhereUniqueInput
+  dueDate: DateTime
+  generatedAt: DateTime
+  invoiceType: EnumInvoiceInvoiceType
+  paymentHistory: JSON
+  paymentStatus: EnumInvoicePaymentStatus
+  paymentTerms: String
+  project: ProjectWhereUniqueInput
+  service: ServiceWhereUniqueInput
+  tax: Float
+}
+
+input InvoiceUpdateManyWithoutClientsInput {
+  connect: [InvoiceWhereUniqueInput!]
+  disconnect: [InvoiceWhereUniqueInput!]
+  set: [InvoiceWhereUniqueInput!]
+}
+
+input InvoiceUpdateManyWithoutProjectsInput {
+  connect: [InvoiceWhereUniqueInput!]
+  disconnect: [InvoiceWhereUniqueInput!]
+  set: [InvoiceWhereUniqueInput!]
+}
+
+input InvoiceUpdateManyWithoutServicesInput {
+  connect: [InvoiceWhereUniqueInput!]
+  disconnect: [InvoiceWhereUniqueInput!]
+  set: [InvoiceWhereUniqueInput!]
+}
+
+input InvoiceWhereInput {
+  amount: FloatNullableFilter
+  attachments: JsonFilter
+  client: ClientWhereUniqueInput
+  dueDate: DateTimeNullableFilter
+  generatedAt: DateTimeNullableFilter
+  id: StringFilter
+  invoiceType: EnumInvoiceInvoiceType
+  paymentHistory: JsonFilter
+  paymentStatus: EnumInvoicePaymentStatus
+  paymentTerms: StringNullableFilter
+  project: ProjectWhereUniqueInput
+  service: ServiceWhereUniqueInput
+  tax: FloatNullableFilter
+}
+
+input InvoiceWhereUniqueInput {
+  id: String!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+input JsonFilter {
+  equals: JSONObject
+  not: JSONObject
+}
+
+type Lead {
+  assignedResponsible: String
+  client: Client
+  company: String
+  createdAt: DateTime!
+  email: String
+  estimatedProjectValue: Float
+  id: String!
+  leadStatus: EnumLeadLeadStatus
+  leadType: EnumLeadLeadType
+  name: String
+  notes: String
+  phone: String
+  serviceOfInterest: String
+  updatedAt: DateTime!
+}
+
+input LeadCreateInput {
+  assignedResponsible: String
+  client: ClientWhereUniqueInput
+  company: String
+  email: String
+  estimatedProjectValue: Float
+  leadStatus: EnumLeadLeadStatus
+  leadType: EnumLeadLeadType
+  name: String
+  notes: String
+  phone: String
+  serviceOfInterest: String
+}
+
+input LeadCreateNestedManyWithoutClientsInput {
+  connect: [LeadWhereUniqueInput!]
+}
+
+input LeadListRelationFilter {
+  every: LeadWhereInput
+  none: LeadWhereInput
+  some: LeadWhereInput
+}
+
+input LeadOrderByInput {
+  assignedResponsible: SortOrder
+  clientId: SortOrder
+  company: SortOrder
+  createdAt: SortOrder
+  email: SortOrder
+  estimatedProjectValue: SortOrder
+  id: SortOrder
+  leadStatus: SortOrder
+  leadType: SortOrder
+  name: SortOrder
+  notes: SortOrder
+  phone: SortOrder
+  serviceOfInterest: SortOrder
+  updatedAt: SortOrder
+}
+
+input LeadUpdateInput {
+  assignedResponsible: String
+  client: ClientWhereUniqueInput
+  company: String
+  email: String
+  estimatedProjectValue: Float
+  leadStatus: EnumLeadLeadStatus
+  leadType: EnumLeadLeadType
+  name: String
+  notes: String
+  phone: String
+  serviceOfInterest: String
+}
+
+input LeadUpdateManyWithoutClientsInput {
+  connect: [LeadWhereUniqueInput!]
+  disconnect: [LeadWhereUniqueInput!]
+  set: [LeadWhereUniqueInput!]
+}
+
+input LeadWhereInput {
+  assignedResponsible: StringNullableFilter
+  client: ClientWhereUniqueInput
+  company: StringNullableFilter
+  email: StringNullableFilter
+  estimatedProjectValue: FloatNullableFilter
+  id: StringFilter
+  leadStatus: EnumLeadLeadStatus
+  leadType: EnumLeadLeadType
+  name: StringNullableFilter
+  notes: StringNullableFilter
+  phone: StringNullableFilter
+  serviceOfInterest: StringNullableFilter
+}
+
+input LeadWhereUniqueInput {
+  id: String!
+}
+
+type Mutation {
+  createAiUsageMetric(data: AiUsageMetricCreateInput!): AiUsageMetric!
+  createClient(data: ClientCreateInput!): Client!
+  createInvoice(data: InvoiceCreateInput!): Invoice!
+  createLead(data: LeadCreateInput!): Lead!
+  createPassword(data: PasswordCreateInput!): Password!
+  createProject(data: ProjectCreateInput!): Project!
+  createService(data: ServiceCreateInput!): Service!
+  deleteAiUsageMetric(where: AiUsageMetricWhereUniqueInput!): AiUsageMetric!
+  deleteClient(where: ClientWhereUniqueInput!): Client!
+  deleteInvoice(where: InvoiceWhereUniqueInput!): Invoice!
+  deleteLead(where: LeadWhereUniqueInput!): Lead!
+  deletePassword(where: PasswordWhereUniqueInput!): Password!
+  deleteProject(where: ProjectWhereUniqueInput!): Project!
+  deleteService(where: ServiceWhereUniqueInput!): Service!
+  updateAiUsageMetric(data: AiUsageMetricUpdateInput!, where: AiUsageMetricWhereUniqueInput!): AiUsageMetric!
+  updateClient(data: ClientUpdateInput!, where: ClientWhereUniqueInput!): Client!
+  updateInvoice(data: InvoiceUpdateInput!, where: InvoiceWhereUniqueInput!): Invoice!
+  updateLead(data: LeadUpdateInput!, where: LeadWhereUniqueInput!): Lead!
+  updatePassword(data: PasswordUpdateInput!, where: PasswordWhereUniqueInput!): Password!
+  updateProject(data: ProjectUpdateInput!, where: ProjectWhereUniqueInput!): Project!
+  updateService(data: ServiceUpdateInput!, where: ServiceWhereUniqueInput!): Service!
+}
+
+type Password {
+  accessPermissions: JSON
+  client: Client
+  createdAt: DateTime!
+  credentials: String
+  expirationDate: DateTime
+  id: String!
+  project: Project
+  updatedAt: DateTime!
+  usageAudit: JSON
+}
+
+input PasswordCreateInput {
+  accessPermissions: JSON
+  client: ClientWhereUniqueInput
+  credentials: String
+  expirationDate: DateTime
+  project: ProjectWhereUniqueInput
+  usageAudit: JSON
+}
+
+input PasswordCreateNestedManyWithoutClientsInput {
+  connect: [PasswordWhereUniqueInput!]
+}
+
+input PasswordCreateNestedManyWithoutProjectsInput {
+  connect: [PasswordWhereUniqueInput!]
+}
+
+input PasswordListRelationFilter {
+  every: PasswordWhereInput
+  none: PasswordWhereInput
+  some: PasswordWhereInput
+}
+
+input PasswordOrderByInput {
+  accessPermissions: SortOrder
+  clientId: SortOrder
+  createdAt: SortOrder
+  credentials: SortOrder
+  expirationDate: SortOrder
+  id: SortOrder
+  projectId: SortOrder
+  updatedAt: SortOrder
+  usageAudit: SortOrder
+}
+
+input PasswordUpdateInput {
+  accessPermissions: JSON
+  client: ClientWhereUniqueInput
+  credentials: String
+  expirationDate: DateTime
+  project: ProjectWhereUniqueInput
+  usageAudit: JSON
+}
+
+input PasswordUpdateManyWithoutClientsInput {
+  connect: [PasswordWhereUniqueInput!]
+  disconnect: [PasswordWhereUniqueInput!]
+  set: [PasswordWhereUniqueInput!]
+}
+
+input PasswordUpdateManyWithoutProjectsInput {
+  connect: [PasswordWhereUniqueInput!]
+  disconnect: [PasswordWhereUniqueInput!]
+  set: [PasswordWhereUniqueInput!]
+}
+
+input PasswordWhereInput {
+  accessPermissions: JsonFilter
+  client: ClientWhereUniqueInput
+  credentials: StringNullableFilter
+  expirationDate: DateTimeNullableFilter
+  id: StringFilter
+  project: ProjectWhereUniqueInput
+  usageAudit: JsonFilter
+}
+
+input PasswordWhereUniqueInput {
+  id: String!
+}
+
+type Project {
+  client: Client
+  createdAt: DateTime!
+  endDate: DateTime
+  id: String!
+  invoices(orderBy: [InvoiceOrderByInput!], skip: Float, take: Float, where: InvoiceWhereInput): [Invoice!]!
+  monthlyAmountDue: Float
+  name: String
+  passwords(orderBy: [PasswordOrderByInput!], skip: Float, take: Float, where: PasswordWhereInput): [Password!]!
+  paymentSchedule: JSON
+  progress: String
+  service: Service
+  startDate: DateTime
+  status: EnumProjectStatus
+  totalPrice: Float
+  updatedAt: DateTime!
+}
+
+input ProjectCreateInput {
+  client: ClientWhereUniqueInput
+  endDate: DateTime
+  invoices: InvoiceCreateNestedManyWithoutProjectsInput
+  monthlyAmountDue: Float
+  name: String
+  passwords: PasswordCreateNestedManyWithoutProjectsInput
+  paymentSchedule: JSON
+  progress: String
+  service: ServiceWhereUniqueInput
+  startDate: DateTime
+  status: EnumProjectStatus
+  totalPrice: Float
+}
+
+input ProjectCreateNestedManyWithoutClientsInput {
+  connect: [ProjectWhereUniqueInput!]
+}
+
+input ProjectCreateNestedManyWithoutServicesInput {
+  connect: [ProjectWhereUniqueInput!]
+}
+
+input ProjectListRelationFilter {
+  every: ProjectWhereInput
+  none: ProjectWhereInput
+  some: ProjectWhereInput
+}
+
+input ProjectOrderByInput {
+  clientId: SortOrder
+  createdAt: SortOrder
+  endDate: SortOrder
+  id: SortOrder
+  monthlyAmountDue: SortOrder
+  name: SortOrder
+  paymentSchedule: SortOrder
+  progress: SortOrder
+  serviceId: SortOrder
+  startDate: SortOrder
+  status: SortOrder
+  totalPrice: SortOrder
+  updatedAt: SortOrder
+}
+
+input ProjectUpdateInput {
+  client: ClientWhereUniqueInput
+  endDate: DateTime
+  invoices: InvoiceUpdateManyWithoutProjectsInput
+  monthlyAmountDue: Float
+  name: String
+  passwords: PasswordUpdateManyWithoutProjectsInput
+  paymentSchedule: JSON
+  progress: String
+  service: ServiceWhereUniqueInput
+  startDate: DateTime
+  status: EnumProjectStatus
+  totalPrice: Float
+}
+
+input ProjectUpdateManyWithoutClientsInput {
+  connect: [ProjectWhereUniqueInput!]
+  disconnect: [ProjectWhereUniqueInput!]
+  set: [ProjectWhereUniqueInput!]
+}
+
+input ProjectUpdateManyWithoutServicesInput {
+  connect: [ProjectWhereUniqueInput!]
+  disconnect: [ProjectWhereUniqueInput!]
+  set: [ProjectWhereUniqueInput!]
+}
+
+input ProjectWhereInput {
+  client: ClientWhereUniqueInput
+  endDate: DateTimeNullableFilter
+  id: StringFilter
+  invoices: InvoiceListRelationFilter
+  monthlyAmountDue: FloatNullableFilter
+  name: StringNullableFilter
+  passwords: PasswordListRelationFilter
+  paymentSchedule: JsonFilter
+  progress: StringNullableFilter
+  service: ServiceWhereUniqueInput
+  startDate: DateTimeNullableFilter
+  status: EnumProjectStatus
+  totalPrice: FloatNullableFilter
+}
+
+input ProjectWhereUniqueInput {
+  id: String!
+}
+
+type Query {
+  aiUsageMetric(where: AiUsageMetricWhereUniqueInput!): AiUsageMetric
+  aiUsageMetrics(orderBy: [AiUsageMetricOrderByInput!], skip: Float, take: Float, where: AiUsageMetricWhereInput): [AiUsageMetric!]!
+  client(where: ClientWhereUniqueInput!): Client
+  clients(orderBy: [ClientOrderByInput!], skip: Float, take: Float, where: ClientWhereInput): [Client!]!
+  getService(where: ServiceWhereUniqueInput!): Service
+  invoice(where: InvoiceWhereUniqueInput!): Invoice
+  invoices(orderBy: [InvoiceOrderByInput!], skip: Float, take: Float, where: InvoiceWhereInput): [Invoice!]!
+  lead(where: LeadWhereUniqueInput!): Lead
+  leads(orderBy: [LeadOrderByInput!], skip: Float, take: Float, where: LeadWhereInput): [Lead!]!
+  password(where: PasswordWhereUniqueInput!): Password
+  passwords(orderBy: [PasswordOrderByInput!], skip: Float, take: Float, where: PasswordWhereInput): [Password!]!
+  project(where: ProjectWhereUniqueInput!): Project
+  projects(orderBy: [ProjectOrderByInput!], skip: Float, take: Float, where: ProjectWhereInput): [Project!]!
+  services(orderBy: [ServiceOrderByInput!], skip: Float, take: Float, where: ServiceWhereInput): [Service!]!
+}
+
+enum QueryMode {
+  Default
+  Insensitive
+}
+
+type Service {
+  aiUsageMetrics(orderBy: [AiUsageMetricOrderByInput!], skip: Float, take: Float, where: AiUsageMetricWhereInput): [AiUsageMetric!]!
+  basePrice: Float
+  category: EnumServiceCategory
+  clients(orderBy: [ClientOrderByInput!], skip: Float, take: Float, where: ClientWhereInput): [Client!]!
+  createdAt: DateTime!
+  deliveryTimeline: String
+  description: String
+  duration: Float
+  id: String!
+  invoices(orderBy: [InvoiceOrderByInput!], skip: Float, take: Float, where: InvoiceWhereInput): [Invoice!]!
+  projects(orderBy: [ProjectOrderByInput!], skip: Float, take: Float, where: ProjectWhereInput): [Project!]!
+  serviceName: String
+  updatedAt: DateTime!
+}
+
+input ServiceCreateInput {
+  aiUsageMetrics: AiUsageMetricCreateNestedManyWithoutServicesInput
+  basePrice: Float
+  category: EnumServiceCategory
+  clients: ClientCreateNestedManyWithoutServicesInput
+  deliveryTimeline: String
+  description: String
+  duration: Float
+  invoices: InvoiceCreateNestedManyWithoutServicesInput
+  projects: ProjectCreateNestedManyWithoutServicesInput
+  serviceName: String
+}
+
+input ServiceOrderByInput {
+  basePrice: SortOrder
+  category: SortOrder
+  createdAt: SortOrder
+  deliveryTimeline: SortOrder
+  description: SortOrder
+  duration: SortOrder
+  id: SortOrder
+  serviceName: SortOrder
+  updatedAt: SortOrder
+}
+
+input ServiceUpdateInput {
+  aiUsageMetrics: AiUsageMetricUpdateManyWithoutServicesInput
+  basePrice: Float
+  category: EnumServiceCategory
+  clients: ClientUpdateManyWithoutServicesInput
+  deliveryTimeline: String
+  description: String
+  duration: Float
+  invoices: InvoiceUpdateManyWithoutServicesInput
+  projects: ProjectUpdateManyWithoutServicesInput
+  serviceName: String
+}
+
+input ServiceWhereInput {
+  aiUsageMetrics: AiUsageMetricListRelationFilter
+  basePrice: FloatNullableFilter
+  category: EnumServiceCategory
+  clients: ClientListRelationFilter
+  deliveryTimeline: StringNullableFilter
+  description: StringNullableFilter
+  duration: IntNullableFilter
+  id: StringFilter
+  invoices: InvoiceListRelationFilter
+  projects: ProjectListRelationFilter
+  serviceName: StringNullableFilter
+}
+
+input ServiceWhereUniqueInput {
+  id: String!
+}
+
+enum SortOrder {
+  Asc
+  Desc
+}
+
+input StringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  mode: QueryMode
+  not: String
+  notIn: [String!]
+  startsWith: String
+}
+
+input StringNullableFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  mode: QueryMode
+  not: String
+  notIn: [String!]
+  startsWith: String
+}

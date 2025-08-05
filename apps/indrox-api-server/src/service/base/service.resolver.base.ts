@@ -50,7 +50,7 @@ export class ServiceResolverBase {
   }
 
   @graphql.Query(() => Service, { nullable: true })
-  async service(
+  async getService(
     @graphql.Args() args: ServiceFindUniqueArgs
   ): Promise<Service | null> {
     const result = await this.service.service(args);
