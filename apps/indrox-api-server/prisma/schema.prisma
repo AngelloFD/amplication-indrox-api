@@ -1,0 +1,161 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Client {
+  aiUsageMetrics    AiUsageMetric[]
+  billingInfo       Json?
+  clientStatus      EnumClientClientStatus?
+  company           String?
+  createdAt         DateTime                @default(now())
+  email             String?
+  fullName          String?
+  id                String                  @id @default(cuid())
+  invoices          Invoice[]
+  leads             Lead[]
+  passwords         Password[]
+  paymentMethods    Json?
+  phone             String?
+  portalCredentials Json?
+  projects          Project[]
+  service           Service?                @relation(fields: [serviceId], references: [id])
+  serviceId         String?
+  updatedAt         DateTime                @updatedAt
+}
+
+model Service {
+  aiUsageMetrics   AiUsageMetric[]
+  basePrice        Float?
+  category         EnumServiceCategory?
+  clients          Client[]
+  createdAt        DateTime             @default(now())
+  deliveryTimeline String?
+  description      String?
+  duration         Int?
+  id               String               @id @default(cuid())
+  invoices         Invoice[]
+  projects         Project[]
+  serviceName      String?
+  updatedAt        DateTime             @updatedAt
+}
+
+model Lead {
+  assignedResponsible   String?
+  client                Client?             @relation(fields: [clientId], references: [id])
+  clientId              String?
+  company               String?
+  createdAt             DateTime            @default(now())
+  email                 String?
+  estimatedProjectValue Float?
+  id                    String              @id @default(cuid())
+  leadStatus            EnumLeadLeadStatus?
+  leadType              EnumLeadLeadType?
+  name                  String?
+  notes                 String?
+  phone                 String?
+  serviceOfInterest     String?
+  updatedAt             DateTime            @updatedAt
+}
+
+model Project {
+  client           Client?            @relation(fields: [clientId], references: [id])
+  clientId         String?
+  createdAt        DateTime           @default(now())
+  endDate          DateTime?
+  id               String             @id @default(cuid())
+  invoices         Invoice[]
+  monthlyAmountDue Float?
+  name             String?
+  passwords        Password[]
+  paymentSchedule  Json?
+  progress         String?
+  service          Service?           @relation(fields: [serviceId], references: [id])
+  serviceId        String?
+  startDate        DateTime?
+  status           EnumProjectStatus?
+  totalPrice       Float?
+  updatedAt        DateTime           @updatedAt
+}
+
+model AiUsageMetric {
+  client           Client?   @relation(fields: [clientId], references: [id])
+  clientId         String?
+  cost             Float?
+  createdAt        DateTime  @default(now())
+  id               String    @id @default(cuid())
+  messageCount     Int?
+  service          Service?  @relation(fields: [serviceId], references: [id])
+  serviceId        String?
+  serviceType      String?
+  tokenConsumption Int?
+  updatedAt        DateTime  @updatedAt
+  usageDate        DateTime?
+}
+
+model Password {
+  accessPermissions Json?
+  client            Client?   @relation(fields: [clientId], references: [id])
+  clientId          String?
+  createdAt         DateTime  @default(now())
+  credentials       String?
+  expirationDate    DateTime?
+  id                String    @id @default(cuid())
+  project           Project?  @relation(fields: [projectId], references: [id])
+  projectId         String?
+  updatedAt         DateTime  @updatedAt
+  usageAudit        Json?
+}
+
+model Invoice {
+  amount         Float?
+  attachments    Json?
+  client         Client?                   @relation(fields: [clientId], references: [id])
+  clientId       String?
+  createdAt      DateTime                  @default(now())
+  dueDate        DateTime?
+  generatedAt    DateTime?
+  id             String                    @id @default(cuid())
+  invoiceType    EnumInvoiceInvoiceType?
+  paymentHistory Json?
+  paymentStatus  EnumInvoicePaymentStatus?
+  paymentTerms   String?
+  project        Project?                  @relation(fields: [projectId], references: [id])
+  projectId      String?
+  service        Service?                  @relation(fields: [serviceId], references: [id])
+  serviceId      String?
+  tax            Float?
+  updatedAt      DateTime                  @updatedAt
+}
+
+enum EnumClientClientStatus {
+  Option1
+}
+
+enum EnumServiceCategory {
+  Option1
+}
+
+enum EnumLeadLeadStatus {
+  Option1
+}
+
+enum EnumLeadLeadType {
+  Option1
+}
+
+enum EnumProjectStatus {
+  Option1
+}
+
+enum EnumInvoiceInvoiceType {
+  Option1
+}
+
+enum EnumInvoicePaymentStatus {
+  Option1
+}
